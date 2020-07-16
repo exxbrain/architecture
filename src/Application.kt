@@ -29,6 +29,10 @@ fun Application.main(testing: Boolean = false) {
             call.respond(TextContent("${it.value} ${it.description}",
                 ContentType.Text.Plain.withCharset(Charsets.UTF_8), it))
         }
+        exception<Throwable> { cause ->
+            call.respond(HttpStatusCode.InternalServerError, "Internal Server Error")
+            throw cause
+        }
     }
     install(CallLogging)
     install(ConditionalHeaders)
