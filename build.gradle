@@ -14,7 +14,7 @@ apply plugin: 'application'
 
 mainClassName = "io.ktor.server.netty.EngineMain"
 group 'com.exxbrain'
-version '0.0.1'
+version '0.0.2'
 
 apply plugin: 'com.github.johnrengelman.shadow'
 

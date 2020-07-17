@@ -20,7 +20,9 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 enum class ServerStatus {OK}
 data class Health(val status: ServerStatus)
+data class Version(val version: String)
 
+@Suppress("unused", "UNUSED_PARAMETER")
 @kotlin.jvm.JvmOverloads
 fun Application.main(testing: Boolean = false) {
     install(DefaultHeaders)
@@ -57,6 +59,10 @@ fun Application.main(testing: Boolean = false) {
         get("/health") {
             call.respond(Health(status = ServerStatus.OK))
         }
+        get("/version") {
+            call.respond(Version(version = version))
+        }
     }
 }
 
+val Application.version get() = environment.config.property("ktor.application.version").getString()
