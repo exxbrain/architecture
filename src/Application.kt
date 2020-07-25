@@ -1,5 +1,9 @@
 package com.exxbrain
 
+import com.exxbrain.database.DatabaseAccess
+import com.exxbrain.data.DataAccess
+import com.exxbrain.routing.main
+import com.exxbrain.routing.users
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -12,19 +16,13 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.withCharset
 import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.get
 import io.ktor.routing.routing
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>) {
+    io.ktor.server.netty.EngineMain.main(args)
+}
 
-enum class ServerStatus {OK}
-data class Health(val status: ServerStatus)
-data class Version(val version: String)
-
-@Suppress("unused", "UNUSED_PARAMETER")
-@kotlin.jvm.JvmOverloads
-fun Application.main(testing: Boolean = false) {
+fun Application.main(dataAccess: DataAccess = DatabaseAccess("jdbc:pgsql://localhost:12346/test", "org.postgresql.Driver")) {
     install(DefaultHeaders)
     install(StatusPages) {
         status(HttpStatusCode.NotFound) {
@@ -52,17 +50,9 @@ fun Application.main(testing: Boolean = false) {
             setPrettyPrinting()
         }
     }
+
     routing {
-        get("/") {
-            call.respondText("Hello World!", ContentType.Text.Plain)
-        }
-        get("/health") {
-            call.respond(Health(status = ServerStatus.OK))
-        }
-        get("/version") {
-            call.respond(Version(version = version))
-        }
+        main()
+        users(dataAccess)
     }
 }
-
-val Application.version get() = environment.config.property("ktor.application.version").getString()
