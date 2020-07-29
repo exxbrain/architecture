@@ -17,20 +17,30 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.withCharset
 import io.ktor.response.respond
 import io.ktor.routing.routing
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+val log = LoggerFactory.getLogger(Application::class.java)
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
-fun Application.main(dataAccess: DataAccess = DatabaseAccess("jdbc:pgsql://localhost:12346/test", "org.postgresql.Driver")) {
+fun Application.main(dataAccess: DataAccess = DatabaseAccess("jdbc:postgresql://localhost:12346/test", "org.postgresql.Driver")) {
     install(DefaultHeaders)
     install(StatusPages) {
         status(HttpStatusCode.NotFound) {
             call.respond(TextContent("${it.value} ${it.description}",
                 ContentType.Text.Plain.withCharset(Charsets.UTF_8), it))
         }
+        exception<AssertionError> { cause ->
+            call.respond(HttpStatusCode.BadRequest,
+                "${HttpStatusCode.BadRequest.value} ${HttpStatusCode.BadRequest.description}")
+            log.info(cause.localizedMessage)
+        }
         exception<Throwable> { cause ->
-            call.respond(HttpStatusCode.InternalServerError, "Internal Server Error")
+            call.respond(HttpStatusCode.InternalServerError,
+                "${HttpStatusCode.InternalServerError.value} ${HttpStatusCode.InternalServerError.description}")
             throw cause
         }
     }

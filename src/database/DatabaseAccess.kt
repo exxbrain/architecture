@@ -9,9 +9,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DatabaseAccess(url: String, driver: String) : DataAccess {
     init {
         Database.connect(url, driver)
-        transaction {
-            SchemaUtils.create(UserTable)
-        }
     }
     override val users: Users
         get() = DatabaseUsers()
