@@ -31,7 +31,7 @@ fun convert(user: User): com.exxbrain.data.User = com.exxbrain.data.User(
         firstName = user.firstName,
         lastName = user.lastName,
         email = user.email,
-        phone = user.phone.subSequence(1, user.phone.length - 1).toString().toBigDecimal()
+        phone = user.phone.subSequence(1, user.phone.length).toString().toBigDecimal()
 )
 
 fun convert(user: com.exxbrain.data.User): User = User(
