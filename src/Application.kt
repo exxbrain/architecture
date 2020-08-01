@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
-fun Application.main(dataAccess: DataAccess = DatabaseAccess("jdbc:postgresql://localhost:12346/test", "org.postgresql.Driver")) {
+fun Application.main(dataAccess: DataAccess = DatabaseAccess(databaseUri, "org.postgresql.Driver")) {
     install(DefaultHeaders)
     install(StatusPages) {
         status(HttpStatusCode.NotFound) {
@@ -66,3 +66,5 @@ fun Application.main(dataAccess: DataAccess = DatabaseAccess("jdbc:postgresql://
         users(dataAccess)
     }
 }
+
+val Application.databaseUri get() = environment.config.property("ktor.application.databaseUri").getString()

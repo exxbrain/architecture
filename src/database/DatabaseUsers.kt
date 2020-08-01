@@ -8,11 +8,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 object UserTable : UUIDTable() {
-    val username = varchar("name", 256)
+    val username = varchar("name", 256).index(isUnique = true)
     val firstName = varchar("firstName", 256)
     val lastName = varchar("lastName", 256)
-    val email = varchar("email", 256)
-    val phone = decimal("phone", 12, 0)
+    val email = varchar("email", 256).index(isUnique = true)
+    val phone = decimal("phone", 12, 0).index(isUnique = true)
 }
 
 class DatabaseUsers : Users {
@@ -31,7 +31,7 @@ class DatabaseUsers : Users {
                     it[firstName] = user.firstName
                     it[lastName] = user.lastName
                     it[email] = user.email
-                    it[phone] = user.phone.toBigDecimal()
+                    it[phone] = user.phone
                 }
             }
             return
@@ -42,13 +42,13 @@ class DatabaseUsers : Users {
                 it[firstName] = user.firstName
                 it[lastName] = user.lastName
                 it[email] = user.email
-                it[phone] = user.phone.toBigDecimal()
+                it[phone] = user.phone
             }
         }
         user.id = id.value
     }
 
-    override fun findById(id: UUID): User {
+    override fun findById(id: UUID): User? {
         return transaction {
             UserTable.select { UserTable.id eq id }.limit(1).map {
                 User(
@@ -57,9 +57,9 @@ class DatabaseUsers : Users {
                     lastName = it[UserTable.lastName],
                     username = it[UserTable.username],
                     email = it[UserTable.email],
-                    phone = it[UserTable.phone].toString()
+                    phone = it[UserTable.phone]
                 )
             }
-        }.first()
+        }.firstOrNull()
     }
 }

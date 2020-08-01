@@ -16,7 +16,7 @@ data class Version(val version: String)
 
 fun Routing.main() {
     get("/") {
-        call.respondText("Hello World!", ContentType.Text.Plain, HttpStatusCode.OK)
+        call.respondText("${application.greeting} World!", ContentType.Text.Plain, HttpStatusCode.OK)
     }
     get("/health") {
         call.respond(Health(status = ServerStatus.OK))
@@ -27,3 +27,4 @@ fun Routing.main() {
 }
 
 val Application.version get() = environment.config.property("ktor.application.version").getString()
+val Application.greeting get() = environment.config.property("ktor.application.greeting").getString()

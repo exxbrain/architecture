@@ -2,7 +2,7 @@
 
 ## Build/Push
 ```shell script
-export VERSION=0.0.1 \
+export VERSION=0.1.5 \
 && ./gradlew clean shadowJar && docker build --build-arg VERSION=$VERSION -t exxbrain/architecture:$VERSION -t exxbrain/architecture:latest . \
 && docker push exxbrain/architecture:$VERSION && docker push exxbrain/architecture:latest 
 ```
