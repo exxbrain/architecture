@@ -5,6 +5,7 @@ import com.exxbrain.data.Users
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.lang.AssertionError
 import java.util.*
 
 object UserTable : UUIDTable() {
@@ -24,18 +25,21 @@ class DatabaseUsers : Users {
     }
 
     override fun save(user: User) {
-        if (user.id != null) {
-            transaction {
-                UserTable.update({ UserTable.id eq user.id }) {
-                    it[username] = user.username
-                    it[firstName] = user.firstName
-                    it[lastName] = user.lastName
-                    it[email] = user.email
-                    it[phone] = user.phone
-                }
+        try {
+            if (user.id != null) {
+                update(user)
+            } else {
+                insert(user)
             }
-            return
+        } catch (e: Exception) {
+            val msg = e.cause?.message
+            throw if (msg != null && msg.contains("duplicate"))
+                AssertionError(msg)
+            else e
         }
+    }
+
+    private fun insert(user: User) {
         val id = transaction {
             UserTable.insertAndGetId {
                 it[username] = user.username
@@ -46,6 +50,18 @@ class DatabaseUsers : Users {
             }
         }
         user.id = id.value
+    }
+
+    private fun update(user: User) {
+        transaction {
+            UserTable.update({ UserTable.id eq user.id }) {
+                it[username] = user.username
+                it[firstName] = user.firstName
+                it[lastName] = user.lastName
+                it[email] = user.email
+                it[phone] = user.phone
+            }
+        }
     }
 
     override fun findById(id: UUID): User? {

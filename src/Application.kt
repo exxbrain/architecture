@@ -39,12 +39,6 @@ fun Application.main(dataAccess: DataAccess = DatabaseAccess(databaseUri, "org.p
             log.info(cause.localizedMessage)
         }
         exception<Throwable> { cause ->
-            if (cause.message != null && cause.message!!.contains("duplicate")) {
-                call.respond(HttpStatusCode.BadRequest,
-                        "${HttpStatusCode.BadRequest.value} ${HttpStatusCode.BadRequest.description}")
-                log.info(cause.localizedMessage)
-                return@exception
-            }
             call.respond(HttpStatusCode.InternalServerError,
                 "${HttpStatusCode.InternalServerError.value} ${HttpStatusCode.InternalServerError.description}")
             throw cause
