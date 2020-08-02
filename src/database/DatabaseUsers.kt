@@ -33,7 +33,8 @@ class DatabaseUsers : Users {
             }
         } catch (e: Exception) {
             val msg = e.cause?.message
-            throw if (msg != null && msg.contains("duplicate"))
+            throw if (msg != null && (msg.contains("duplicate")
+                            || msg.contains("Unique index or primary key violation")))
                 AssertionError(msg)
             else e
         }
