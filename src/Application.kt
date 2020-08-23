@@ -1,24 +1,24 @@
 package com.exxbrain
 
-import com.exxbrain.database.DatabaseAccess
 import com.exxbrain.data.DataAccess
+import com.exxbrain.database.DatabaseAccess
 import com.exxbrain.routing.main
 import com.exxbrain.routing.users
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.content.TextContent
+import io.ktor.content.*
 import io.ktor.features.*
-import io.ktor.gson.GsonConverter
-import io.ktor.gson.gson
-import io.ktor.http.ContentType
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.withCharset
-import io.ktor.response.respond
-import io.ktor.routing.routing
-import org.slf4j.Logger
+import io.ktor.gson.*
+import io.ktor.http.*
+import io.ktor.metrics.micrometer.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import org.slf4j.LoggerFactory
+import java.time.Duration
 
 val log = LoggerFactory.getLogger(Application::class.java)
 
@@ -45,8 +45,6 @@ fun Application.main(dataAccess: DataAccess = DatabaseAccess(databaseUri, "org.p
         }
     }
     install(CallLogging)
-    install(ConditionalHeaders)
-    install(AutoHeadResponse)
     install(CORS) {
         anyHost()
         allowCredentials = true
@@ -59,6 +57,21 @@ fun Application.main(dataAccess: DataAccess = DatabaseAccess(databaseUri, "org.p
         gson {
             setPrettyPrinting()
         }
+    }
+
+    install(MicrometerMetrics) {
+        registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+
+        distributionStatisticConfig = DistributionStatisticConfig.Builder()
+                .percentilesHistogram(true)
+                .percentiles(0.5, 0.95, 0.99, 1.0)
+                .maximumExpectedValue(Duration.ofSeconds(20).toNanos())
+                .sla(
+                        Duration.ofMillis(100).toNanos(),
+                        Duration.ofMillis(500).toNanos()
+                )
+                .build()
+
     }
 
     routing {

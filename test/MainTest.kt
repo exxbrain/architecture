@@ -1,3 +1,4 @@
+import com.exxbrain.database.DatabaseAccess
 import com.exxbrain.main
 import io.ktor.config.MapApplicationConfig
 import io.ktor.http.HttpMethod
@@ -16,7 +17,7 @@ class MainTest {
             // Set here the properties
             put("ktor.application.version", "0.0.1")
         }
-        main()
+        main(DatabaseAccess("jdbc:h2:mem:regular;DB_CLOSE_DELAY=-1", "org.h2.Driver"))
     }){
         with (handleRequest(HttpMethod.Get, "/health")) {
             assertEquals(HttpStatusCode.OK, response.status())

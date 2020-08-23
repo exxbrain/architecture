@@ -1,14 +1,9 @@
 package com.exxbrain.routing
 
-import io.ktor.application.Application
-import io.ktor.application.application
-import io.ktor.application.call
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.Routing
-import io.ktor.routing.get
+import io.ktor.application.*
+import io.ktor.http.*
+import io.ktor.response.*
+import io.ktor.routing.*
 
 enum class ServerStatus {OK}
 data class Health(val status: ServerStatus)
